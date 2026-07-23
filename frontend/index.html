@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0">
+
+    <title>Malik.AI</title>
+
+    <link rel="preconnect"
+        href="https://fonts.googleapis.com">
+
+    <link rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <style>
+
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Inter',sans-serif;
+        }
+
+        body{
+
+            background:#0b0b0d;
+            color:white;
+            height:100vh;
+            overflow:hidden;
+        }
+
+        .container{
+
+            display:flex;
+            height:100vh;
+        }
+
+        /*==========================
+            SIDEBAR
+        ==========================*/
+
+        .sidebar{
+
+            width:270px;
+            background:#121214;
+            border-right:1px solid #2b2b2d;
+            display:flex;
+            flex-direction:column;
+        }
+
+        .logo{
+
+            padding:25px;
+            font-size:24px;
+            font-weight:700;
+            color:#58a6ff;
+            border-bottom:1px solid #2b2b2d;
+        }
+
+        .new-chat{
+
+            margin:20px;
+            height:48px;
+            border:none;
+            border-radius:10px;
+            cursor:pointer;
+            background:#2563eb;
+            color:white;
+            font-size:15px;
+            font-weight:600;
+            transition:.3s;
+        }
+
+        .new-chat:hover{
+
+            background:#1d4ed8;
+        }
+
+        .history{
+
+            flex:1;
+            overflow:auto;
+            padding:15px;
+        }
+
+        .history-item{
+
+            background:#1b1b1f;
+            padding:14px;
+            border-radius:10px;
+            margin-bottom:10px;
+            cursor:pointer;
+            transition:.3s;
+            font-size:14px;
+            overflow:hidden;
+            white-space:nowrap;
+            text-overflow:ellipsis;
+        }
+
+        .history-item:hover{
+
+            background:#2b2b30;
+        }
+
+        .footer{
+
+            padding:20px;
+            border-top:1px solid #2b2b2d;
+            color:#888;
+            font-size:13px;
+        }
+
+        /*==========================
+                CHAT AREA
+        ==========================*/
+
+        .chat-container{
+
+            flex:1;
+            display:flex;
+            flex-direction:column;
+        }
+
+        .header{
+
+            height:70px;
+            border-bottom:1px solid #2b2b2d;
+            display:flex;
+            justify-content:space-between;
+            align-items:center;
+            padding:0 30px;
+            background:#111114;
+        }
+
+        .header h2{
+
+            font-size:20px;
+            font-weight:600;
+        }
+
+        .status{
+
+            color:#22c55e;
+            font-size:14px;
+        }
+
+        .chat-box{
+
+            flex:1;
+            overflow:auto;
+            padding:35px;
+            scroll-behavior:smooth;
+        }
+
+        .message{
+
+            display:flex;
+            margin-bottom:25px;
+        }
+
+        .message.user{
+
+            justify-content:flex-end;
+        }
+
+        .bubble{
+
+            max-width:75%;
+            padding:18px;
+            border-radius:16px;
+            line-height:1.7;
+            word-wrap:break-word;
+        }
+
+        .user .bubble{
+
+            background:#2563eb;
+        }
+
+        .assistant .bubble{
+
+            background:#1c1c22;
+        }
+
+        .typing{
+
+            display:none;
+            margin-top:15px;
+            color:#999;
+            font-size:14px;
+        }
+
+        /*==========================
+            INPUT
+        ==========================*/
+
+        .input-area{
+
+            border-top:1px solid #2b2b2d;
+            padding:20px;
+            background:#111114;
+        }
+
+        .input-wrapper{
+
+            display:flex;
+            align-items:flex-end;
+            gap:15px;
+        }
+
+        textarea{
+
+            flex:1;
+            background:#1b1b1f;
+            border:none;
+            outline:none;
+            color:white;
+            resize:none;
+            height:60px;
+            max-height:180px;
+            border-radius:15px;
+            padding:18px;
+            font-size:15px;
+        }
+
+        button.send{
+
+            width:110px;
+            height:60px;
+            border:none;
+            cursor:pointer;
+            border-radius:15px;
+            background:#2563eb;
+            color:white;
+            font-weight:600;
+            transition:.3s;
+        }
+
+        button.send:hover{
+
+            background:#1d4ed8;
+        }
+
+        pre{
+
+            background:#0d1117;
+            padding:18px;
+            border-radius:10px;
+            overflow:auto;
+            margin-top:12px;
+        }
+
+        code{
+
+            color:#58a6ff;
+        }
+
+        @media(max-width:900px){
+
+            .sidebar{
+
+                display:none;
+            }
+
+            .bubble{
+
+                max-width:95%;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="sidebar">
+
+        <div class="logo">
+
+            Malik.AI
+
+        </div>
+
+        <button
+            class="new-chat"
+            id="newChatBtn">
+
+            + New Chat
+
+        </button>
+
+        <div
+            class="history"
+            id="history">
+
+        </div>
+
+        <div class="footer">
+
+            Developed by Malik Babu
+
+        </div>
+
+    </div>
+
+    <div class="chat-container">
+
+        <div class="header">
+
+            <h2>
+
+                AI Assistant
+
+            </h2>
+
+            <div class="status">
+
+                ● Connected
+
+            </div>
+
+        </div>
+
+        <div
+            class="chat-box"
+            id="chatBox">
+
+        </div>
+
+        <div class="typing"
+            id="typing">
+
+            AI is thinking...
+
+        </div>
+
+        <div class="input-area">
+
+            <div class="input-wrapper">
+
+                <textarea
+                    id="question"
+                    placeholder="Ask anything..."></textarea>
+
+                <button
+                    class="send"
+                    id="sendBtn">
+
+                    Send
+
+                </button>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<script>
+
+const API_URL="http://127.0.0.1:8000/chat";
+
+const question=document.getElementById("question");
+const sendBtn=document.getElementById("sendBtn");
+const chatBox=document.getElementById("chatBox");
+const typing=document.getElementById("typing");
+const history=document.getElementById("history");
+
+let session_id=crypto.randomUUID();
+let chatHistory=[];
+
+function addMessage(text,type){
+
+    const msg=document.createElement("div");
+
+    msg.className=`message ${type}`;
+
+    msg.innerHTML=`
+        <div class="bubble">
+            ${text}
+        </div>
+    `;
+
+    chatBox.appendChild(msg);
+
+    chatBox.scrollTop=chatBox.scrollHeight;
+
+}
+
+<!-- part 2:-->
+
+function saveHistory(questionText){
+
+    if(questionText.trim()===""){
+        return;
+    }
+
+    chatHistory.unshift(questionText);
+
+    if(chatHistory.length>20){
+        chatHistory.pop();
+    }
+
+    localStorage.setItem(
+        "chat_history",
+        JSON.stringify(chatHistory)
+    );
+
+    renderHistory();
+
+}
+
+function renderHistory(){
+
+    history.innerHTML="";
+
+    chatHistory.forEach((item,index)=>{
+
+        const div=document.createElement("div");
+
+        div.className="history-item";
+
+        div.innerText=item;
+
+        div.onclick=function(){
+
+            question.value=item;
+            question.focus();
+
+        }
+
+        history.appendChild(div);
+
+    });
+
+}
+
+function loadHistory(){
+
+    const oldHistory=localStorage.getItem("chat_history");
+
+    if(oldHistory){
+
+        chatHistory=JSON.parse(oldHistory);
+
+        renderHistory();
+
+    }
+
+}
+
+loadHistory();
+
+document
+.getElementById("newChatBtn")
+.addEventListener("click",function(){
+
+    session_id=crypto.randomUUID();
+
+    chatBox.innerHTML="";
+
+    addMessage(
+        "👋 Hello! I am Malik.AI.<br><br>How can I help you today?",
+        "assistant"
+    );
+
+});
+
+question.addEventListener("keydown",function(e){
+
+    if(e.key==="Enter" && !e.shiftKey){
+
+        e.preventDefault();
+
+        sendMessage();
+
+    }
+
+});
+
+sendBtn.addEventListener("click",sendMessage);
+
+async function sendMessage(){
+
+    const userQuestion=question.value.trim();
+
+    if(userQuestion===""){
+        return;
+    }
+
+    addMessage(userQuestion,"user");
+
+    saveHistory(userQuestion);
+
+    question.value="";
+
+    typing.style.display="block";
+
+    sendBtn.disabled=true;
+
+    sendBtn.innerText="Sending...";
+
+    try{
+
+        const response=await fetch(API_URL,{
+
+            method:"POST",
+
+            headers:{
+
+                "Content-Type":"application/json"
+
+            },
+
+            body:JSON.stringify({
+
+                question:userQuestion,
+
+                session_id:session_id
+
+            })
+
+        });
+
+        if(!response.ok){
+
+            throw new Error("Server Error");
+
+        }
+
+        const data=await response.json();
+
+        typing.style.display="none";
+
+        sendBtn.disabled=false;
+
+        sendBtn.innerText="Send";
+
+        let answer=data.answer;
+
+        answer=formatResponse(answer);
+
+        addMessage(answer,"assistant");
+
+    }
+
+    catch(error){
+
+        typing.style.display="none";
+
+        sendBtn.disabled=false;
+
+        sendBtn.innerText="Send";
+
+        addMessage(
+
+            "❌ Unable to connect with backend.<br><br>Please make sure FastAPI server is running.",
+
+            "assistant"
+
+        );
+
+        console.error(error);
+
+    }
+
+}
+
+
+function escapeHtml(text){
+
+    return text
+        .replace(/&/g,"&amp;")
+        .replace(/</g,"&lt;")
+        .replace(/>/g,"&gt;");
+}
+
+function formatInlineCode(text){
+
+    return text.replace(
+        /`([^`]+)`/g,
+        "<code>$1</code>"
+    );
+
+}
+
+function formatBold(text){
+
+    return text.replace(
+        /\*\*(.*?)\*\*/g,
+        "<strong>$1</strong>"
+    );
+
+}
+
+function formatItalic(text){
+
+    return text.replace(
+        /\*(.*?)\*/g,
+        "<em>$1</em>"
+    );
+
+}
+
+function formatLinks(text){
+
+    return text.replace(
+
+        /(https?:\/\/[^\s]+)/g,
+
+        '<a href="$1" target="_blank" style="color:#58a6ff;">$1</a>'
+
+    );
+
+}
+
+function formatCodeBlocks(text){
+
+    const regex=/```([\s\S]*?)```/g;
+
+    return text.replace(regex,function(match,code){
+
+        const escaped=escapeHtml(code.trim());
+
+        return `
+
+        <div style="margin-top:15px;">
+
+            <button
+
+                onclick="copyCode(this)"
+
+                style="
+
+                    float:right;
+
+                    padding:6px 12px;
+
+                    background:#2563eb;
+
+                    color:white;
+
+                    border:none;
+
+                    border-radius:6px;
+
+                    cursor:pointer;
+
+                    margin-bottom:8px;
+
+                ">
+
+                Copy
+
+            </button>
+
+            <pre>
+
+<code>${escaped}</code>
+
+            </pre>
+
+        </div>
+
+        `;
+
+    });
+
+}
+
+function formatNewLine(text){
+
+    return text.replace(/\n/g,"<br>");
+
+}
+
+function formatResponse(text){
+
+    text=escapeHtml(text);
+
+    text=formatCodeBlocks(text);
+
+    text=formatInlineCode(text);
+
+    text=formatBold(text);
+
+    text=formatItalic(text);
+
+    text=formatLinks(text);
+
+    text=formatNewLine(text);
+
+    return text;
+
+}
+
+function copyCode(button){
+
+    const code=
+
+        button.nextElementSibling.innerText;
+
+    navigator.clipboard.writeText(code);
+
+    const oldText=button.innerText;
+
+    button.innerText="Copied ✓";
+
+    setTimeout(function(){
+
+        button.innerText=oldText;
+
+    },2000);
+
+}
+
+window.addEventListener("load",function(){
+
+    addMessage(
+
+        `
+        👋 <b>Welcome to Malik.AI</b>
+
+        <br><br>
+
+        I can help you with:
+
+        <br><br>
+
+        • Python
+
+        <br>
+
+        • Django
+
+        <br>
+
+        • FastAPI
+
+        <br>
+
+        • SQL
+
+        <br>
+
+        • AI & GenAI
+
+        <br>
+
+        • Interview Preparation
+
+        <br>
+
+        • Coding Problems
+
+        `,
+
+        "assistant"
+
+    );
+
+});
+
+
+/*==========================================
+        AUTO RESIZE TEXTAREA
+==========================================*/
+
+question.addEventListener("input", function () {
+
+    this.style.height = "60px";
+
+    this.style.height = this.scrollHeight + "px";
+
+});
+
+
+/*==========================================
+        CONNECTION CHECK
+==========================================*/
+
+async function checkBackend() {
+
+    try {
+
+        const response = await fetch("http://127.0.0.1:8000/");
+
+        if (response.ok) {
+
+            document.querySelector(".status").innerHTML =
+                "🟢 Connected";
+
+        } else {
+
+            document.querySelector(".status").innerHTML =
+                "🔴 Backend Error";
+
+        }
+
+    }
+
+    catch {
+
+        document.querySelector(".status").innerHTML =
+            "🔴 Offline";
+
+    }
+
+}
+
+checkBackend();
+
+setInterval(checkBackend,30000);
+
+
+/*==========================================
+            LOADING DOTS
+==========================================*/
+
+let loadingInterval;
+
+function startLoading(){
+
+    let dots=0;
+
+    typing.style.display="block";
+
+    loadingInterval=setInterval(function(){
+
+        dots++;
+
+        if(dots>3){
+
+            dots=1;
+
+        }
+
+        typing.innerHTML="AI is thinking"+".".repeat(dots);
+
+    },400);
+
+}
+
+function stopLoading(){
+
+    clearInterval(loadingInterval);
+
+    typing.style.display="none";
+
+}
+
+
+/*==========================================
+        API TIMEOUT
+==========================================*/
+
+const originalFetch=window.fetch;
+
+window.fetch=function(){
+
+    const controller=new AbortController();
+
+    const timeout=setTimeout(function(){
+
+        controller.abort();
+
+    },60000);
+
+    const args=[...arguments];
+
+    if(!args[1]){
+
+        args[1]={};
+
+    }
+
+    args[1].signal=controller.signal;
+
+    return originalFetch(...args)
+
+    .finally(function(){
+
+        clearTimeout(timeout);
+
+    });
+
+};
+
+
+/*==========================================
+        SCROLL TO BOTTOM
+==========================================*/
+
+function scrollBottom(){
+
+    chatBox.scrollTop=chatBox.scrollHeight;
+
+}
+
+const observer=new MutationObserver(scrollBottom);
+
+observer.observe(chatBox,{
+
+    childList:true,
+
+    subtree:true
+
+});
+
+
+/*==========================================
+        SHORTCUTS
+==========================================*/
+
+document.addEventListener("keydown",function(e){
+
+    if(e.ctrlKey && e.key==="Enter"){
+
+        sendMessage();
+
+    }
+
+});
+
+
+/*==========================================
+        INITIAL MESSAGE
+==========================================*/
+
+if(chatBox.children.length===0){
+
+    addMessage(
+
+        `
+        👋 Welcome to <b>Malik.AI</b>
+
+        <br><br>
+
+        Start chatting using the text box below.
+
+        `,
+
+        "assistant"
+
+    );
+
+}
+
+</script>
+
+</body>
+
+</html>
